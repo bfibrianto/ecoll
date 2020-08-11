@@ -15,7 +15,7 @@ Route::get('/', function () {
     return view('welcome');
 });
 
-Route::get('test','EcollController@testEncrypt');
+//Route::get('test','EcollController@testEncrypt');
 
 // Route::get("token",'RequestController@getToken');
 // Route::get("decrypt",'RequestController@testDecrypt');

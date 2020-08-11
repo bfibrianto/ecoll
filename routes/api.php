@@ -19,4 +19,5 @@ Route::middleware('auth:api')->get('/user', function (Request $request) {
 
 Route::post('hit','EcollController@newRequest');
 Route::post('notif','EcollController@notif');
+// Route::post('encrypt','EcollController@testEncrypt');
 

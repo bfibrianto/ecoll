@@ -21,21 +21,12 @@ class EcollController extends Controller
 
 	}
 	public function testEncrypt(Request $request){
-		$data = [
-			'trx_id' => '12312344', // silakan gunakan parameter berikut sebagai acuan nomor tagihan
-			'virtual_account' => '123124124321',
-			'customer_name' => 'bagus',
-			'trx_amount' => '8000',
-			'payment_amount' => '8000',
-			'cumulative_payment_amount' => '10',
-			'payment_ntb' => '23317',
-			'datetime_payment' => '2020-08-02 14:00:00',
-			'datetime_payment_iso8601' => '2020-08-02T14:00:00+07:00',
-		];
+		$data = $request->all();
 
 		$encrypted = $this->encrypt($data);
 		$decrypted = $this->decrypt($encrypted);
-		dd(["enc"=>$encrypted,"dec"=>$decrypted,"real"=>$data]);
+		
+		return response()->json(["encrypted"=>$encrypted,"decrypted"=>$decrypted,"real"=>$data]);
 	}
     //
 
@@ -66,32 +57,33 @@ class EcollController extends Controller
     	if($response){
     		
     		$body = json_decode($response,true);
-
-    		// decrypt body
-    		$decrypted = $this->decrypt($body["data"]);
-
-    		// Log request
-
-    		$this->log(
-    			["raw"=>$data, "encrypted"=>$encrypted], // for request data
-    			["raw"=>$decrypted, "encrypted"=>$body["data"]], // for response data
-    			$body['status'] // response status
-    		);
-
-    		// return to sahara whatever response from eCollecton
-    		return response()->json(["status"=>$body["status"], "data"=>$decrypted]);
+            if($body["status"] == "000"){
+                // decrypt body
+    		    $decryptedResponse = $this->decrypt($body["data"]);
+    		    $encryptedResponse = $body["data"];
+    		    $response = ["status" => $body["status"],"data" => $body["data"]];
+            }else{
+                $decyptedResponse = $body;
+                $encryptedResponse = null;
+    		    $response = $body;
+            }
+    		
+    	}else{
+	    	$response = ["status"=>"991", "message" => "Internal sahara server error"];
+	    	$decyptedResponse = $response;
+            $encryptedResponse = null;
     	}
 
-    	$res = ["status"=>"991", "message" => "Internal sahara server error"];
+    
 
     	// Log request even it's failed
 		$this->log(
 			["raw"=>$data, "encrypted"=>$encrypted], // for request data
-			["raw"=>$res, "encrypted"=>null], // for response data
-			$res['status'] // response status
+			["raw"=>$decyptedResponse, "encrypted"=>$encryptedResponse], // for response data
+			$response['status'] // response status
 		);
 
-    	return response()->json($res);
+    	return response()->json($response);
     }
 
     public function notif(Request $request){

@@ -115,6 +115,10 @@ class EcollController extends Controller
 				$save["status_message"] = $response["message"];
 
 				$log = CallbackLog::insert($save);
+				
+				if($response["status"] == "200"){
+                    $response["status"] = "000";
+                }
 			}
 
 			return response()->json($response);
@@ -157,11 +161,9 @@ class EcollController extends Controller
     	$response = $this->makeRequest($urlNotif,json_encode($data));
     	if($response){
     		$body = json_decode($response,true);
-    		if($body["status"] == '200'){
-    			return ["status" => "000", "message" => "notification received successfully", "data"=>$data];
-    		}else{
-    			return $body;
-    		}
+    	
+    	    return $body;
+    		
     	}
 
     	return ["status" => "993", "message"=>"Error when sending notification to sahara"];

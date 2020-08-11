@@ -61,16 +61,16 @@ class EcollController extends Controller
                 // decrypt body
     		    $decryptedResponse = $this->decrypt($body["data"]);
     		    $encryptedResponse = $body["data"];
-    		    $response = ["status" => $body["status"],"data" => $body["data"]];
+    		    $response = ["status" => $body["status"],"data" =>$decryptedResponse];
             }else{
-                $decyptedResponse = $body;
+                $decryptedResponse = $body;
                 $encryptedResponse = null;
     		    $response = $body;
             }
     		
     	}else{
 	    	$response = ["status"=>"991", "message" => "Internal sahara server error"];
-	    	$decyptedResponse = $response;
+	    	$decryptedResponse = $response;
             $encryptedResponse = null;
     	}
 
@@ -79,7 +79,7 @@ class EcollController extends Controller
     	// Log request even it's failed
 		$this->log(
 			["raw"=>$data, "encrypted"=>$encrypted], // for request data
-			["raw"=>$decyptedResponse, "encrypted"=>$encryptedResponse], // for response data
+			["raw"=>$decryptedResponse, "encrypted"=>$encryptedResponse], // for response data
 			$response['status'] // response status
 		);
 
@@ -199,7 +199,7 @@ class EcollController extends Controller
         if(env('APP_ENV')=='local' && $url == env("ECOLL_URL")){
             return $this->makeFakeResponse($url);
         }
-
+        
         $header[] = 'Content-Type: application/json';
         $header[] = "Accept-Encoding: gzip, deflate";
         $header[] = "Cache-Control: max-age=0";
